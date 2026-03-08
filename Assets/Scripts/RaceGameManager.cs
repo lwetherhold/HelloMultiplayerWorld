@@ -1,4 +1,3 @@
-using System;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -31,7 +30,8 @@ public class RaceGameManager : NetworkBehaviour
 
         ulong senderId = rpcParams.Receive.SenderClientId;
         // get the host id from the server client id (this is the id of the server client)
-        ulong hostId = NetworkManager.Singleton.ServerClientId; // safer host id getter than below
+        ulong hostId = NetworkManager.ServerClientId; // below causes an error
+        //ulong hostId = NetworkManager.Singleton.ServerClientId; // safer host id getter than below
         //ulong hostId = NetworkManager.Singleton.ConnectedClientsIds[0];
 
         if (senderId == hostId)
@@ -81,6 +81,11 @@ public class RaceGameManager : NetworkBehaviour
 
     public string GetRoundSummary()
     {
-        return $"P1 Pick: {player1Pick.Value} | P2 Pick: {player2Pick.Value} | Winner: {winnerHorse.Value}"
+        return $"P1 Pick: {player1Pick.Value} | P2 Pick: {player2Pick.Value} | Winner: {winnerHorse.Value}";
+    }
+
+    public string GetScoreSummary()
+    {
+        return $"P1 Score: {player1Score.Value} | P2 Score: {player2Score.Value}";
     }
 }
