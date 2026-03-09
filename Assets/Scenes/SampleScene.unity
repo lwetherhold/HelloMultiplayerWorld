@@ -218,7 +218,7 @@ MonoBehaviour:
   ConnectionData:
     Address: 192.168.68.86
     Port: 7777
-    ServerListenAddress: 127.0.0.1
+    ServerListenAddress: 0.0.0.0
     ClientBindPort: 0
   DebugSimulator:
     PacketDelayMS: 0
