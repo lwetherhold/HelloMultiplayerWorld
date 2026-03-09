@@ -66,8 +66,8 @@ public class RaceUIController : MonoBehaviour
                 // needs a gate for pick click so nothing happens when not connected
 
                 // submit pick to the server
-                if (raceGameManager != null || !IsConnected()) return;
-                raceGameManager.SubmitPickServerRpc(horseIndex)
+                if (raceGameManager == null || !IsConnected()) return;
+                raceGameManager.SubmitPickServerRpc(horseIndex);
 
                 // NOTE: gate added above, replacing below
                 //if (raceGameManager != null) raceGameManager.SubmitPickServerRpc(horseIndex);
@@ -83,6 +83,23 @@ public class RaceUIController : MonoBehaviour
             horseButtons.Add(pickButton);
         }
 
+        // NOTE: for reset button, changed from local variable to field
+        // create button for next race
+        nextRaceButton = new Button(() =>
+        {
+            // reset the game
+            if (raceGameManager != null) raceGameManager.ResetRaceServerRpc();
+        })
+        {
+            // set the text of the button
+            text = "Next Race"
+        };
+
+        // add button to the root visual element
+        root.Add(nextRaceButton);
+
+        // NOTE: reset race button replaced with next race button
+        /*
         // create button for next race
         var resetButton = new Button(() =>
         {
@@ -96,6 +113,7 @@ public class RaceUIController : MonoBehaviour
 
         // add button to the root visual element
         root.Add(resetButton);
+        */
 
         // NOTE: replaced single button (hardcoded pick button) with 8 buttons loop above
         /*
@@ -115,6 +133,14 @@ public class RaceUIController : MonoBehaviour
         */
     }
 
+    // set the state of the race buttons (horse pick buttons + next race button)
+    void SetRaceButtons(bool state)
+    {
+        var display = state ? DisplayStyle.Flex : DisplayStyle.None;
+        foreach (var horseButton in horseButtons) horseButton.style.display = display;
+        if (nextRaceButton != null) nextRaceButton.style.display = display;
+    }
+
     void OnDisable()
     {
         if (hostButton != null) hostButton.clicked -= OnHostButtonClicked;
@@ -132,6 +158,7 @@ public class RaceUIController : MonoBehaviour
     {
         UpdateUI();
 
+        // if the race game manager is not set or not connected, return
         if (raceGameManager == null || !IsConnected())
         {
             return;
@@ -157,11 +184,13 @@ public class RaceUIController : MonoBehaviour
         {
             SetStartButtons(true);
             SetStatusText("Not connected");
+            SetRaceButtons(false); // hide race buttons when not connected
         }
         else
         {
             SetStartButtons(false);
             UpdateStatusLabels();
+            SetRaceButtons(true); // show race buttons when connected
         }
     }
 
