@@ -73,6 +73,7 @@ public class RaceGameManager : NetworkBehaviour
         // set the winner before finishing the race
         winnerHorse.Value = winner;
 
+        // update scores
         if (player1Pick.Value == winner) player1Score.Value++;
         if (player2Pick.Value == winner) player2Score.Value++;
 
@@ -84,6 +85,7 @@ public class RaceGameManager : NetworkBehaviour
         return $"P1 Pick: {player1Pick.Value} | P2 Pick: {player2Pick.Value} | Winner: {winnerHorse.Value}";
     }
 
+    // helper method for getting score summary for UI text display
     public string GetScoreSummary()
     {
         return $"P1 Score: {player1Score.Value} | P2 Score: {player2Score.Value}";
