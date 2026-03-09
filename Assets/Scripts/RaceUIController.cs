@@ -20,6 +20,9 @@ public class RaceUIController : MonoBehaviour
     private Label scoreLabel;
     private Label roundSummaryLabel;
     private Label scoreSummaryLabel;
+    // keep local horse picks visible for a short delay after selecting
+    private float localPickHideDelaySeconds = 5f;
+    private float localPickTimestamp = -1f;
 
     // called when the component is enabled
     void OnEnable()
@@ -30,6 +33,8 @@ public class RaceUIController : MonoBehaviour
         root = uiDocument.rootVisualElement;
         // clear the root visual element
         root.Clear();
+        // clear horse button references if ui gets rebuilt
+        horseButtons.Clear();
 
         // create elements (labels)
         statusLabel = new Label("Race status here");
@@ -55,6 +60,13 @@ public class RaceUIController : MonoBehaviour
         root.Add(clientButton);
         root.Add(serverButton);
 
+        // create a compact grid container for horse buttons
+        var horseGrid = new VisualElement();
+        horseGrid.style.flexDirection = FlexDirection.Row;
+        horseGrid.style.flexWrap = Wrap.Wrap;
+        horseGrid.style.width = 520;
+        root.Add(horseGrid);
+
         // create buttons for each horse
         for (int i = 0; i < 8; i++)
         {
@@ -74,11 +86,29 @@ public class RaceUIController : MonoBehaviour
             })
             {
                 // set the text of the button
-                text = $"Pick Horse {horseIndex + 1}"
+                text = $"🏇 {horseIndex + 1}"
             };
 
+            // compact per-button tile sizing
+            pickButton.style.width = 120;
+            pickButton.style.height = 70;
+            pickButton.style.marginBottom = 6;
+            pickButton.style.marginRight = 6;
+
+            // make it look like clicking just the emoji
+            pickButton.style.backgroundColor = new Color(0, 0, 0, 0);
+            pickButton.style.borderTopWidth = 0;
+            pickButton.style.borderBottomWidth = 0;
+            pickButton.style.borderLeftWidth = 0;
+            pickButton.style.borderRightWidth = 0;
+            pickButton.style.fontSize = 28;
+
+            // add button to the horse grid visual element
+            horseGrid.Add(pickButton);
+
+            // NOTE: replaced with horse grid above
             // add button to the root visual element
-            root.Add(pickButton);
+            //root.Add(pickButton);
 
             horseButtons.Add(pickButton);
         }
@@ -133,13 +163,100 @@ public class RaceUIController : MonoBehaviour
         */
     }
 
+    void UpdateHorseEmojiState()
+    {
+        if (raceGameManager == null || !IsConnected()) return;
+
+        int selected = -1;
+        if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
+        {
+            selected = raceGameManager.player1Pick.Value;
+        }
+        else if (NetworkManager.Singleton.IsClient)
+        {
+            selected = raceGameManager.player2Pick.Value;
+        }
+
+        for (int i = 0; i < horseButtons.Count; i++)
+        {
+            horseButtons[i].text = (i == selected) ? $"🐴 {i + 1}" : $"🏇 {i + 1}";
+            horseButtons[i].style.fontSize = (i == selected) ? 36 : 28;
+        }
+    }
+
     // set the state of the race buttons (horse pick buttons + next race button)
+    // hide pick buttons + next race until connected
+    // pick buttons only show during picking, next race button only shows after finishing
+    void UpdateRaceActionButtons()
+    {
+        if (raceGameManager == null || !IsConnected())
+        {
+            foreach (var horseButton in horseButtons) horseButton.style.display = DisplayStyle.None;
+            if (nextRaceButton != null) nextRaceButton.style.display = DisplayStyle.None;
+            return;
+        }
+
+        int state = raceGameManager.raceState.Value;
+        bool isPicking = state == (int)RaceGameManager.RaceState.WaitingForPicks;
+        bool isFinished = state == (int)RaceGameManager.RaceState.Finished;
+
+        // check if the local player has picked a horse
+        // hide horse buttons when local player already picked
+        bool localPicked = false;
+        if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
+        {
+            localPicked = raceGameManager.player1Pick.Value != -1;
+        }
+        else if (NetworkManager.Singleton.IsClient) 
+        {
+            localPicked = raceGameManager.player2Pick.Value != -1;
+        }
+
+        // start local pick timer after player selects a horse
+        if (isPicking && localPicked && localPickTimestamp < 0f)
+        {
+            localPickTimestamp = Time.time;
+        }
+        // reset local pick timer when local player has no pick
+        if (!localPicked)
+        {
+            localPickTimestamp = -1f;
+        }
+        // reset local pick timer when race is not in picking state
+        if (!isPicking)
+        {
+            localPickTimestamp = -1f;
+        }
+
+        // keep horse buttons visible for 5 seconds after local pick
+        bool localDelayActive = localPicked &&
+                                localPickTimestamp >= 0f &&
+                                (Time.time - localPickTimestamp) < localPickHideDelaySeconds;
+
+        foreach (var horseButton in horseButtons)
+        {
+            // show all horse buttons when picking
+            // hide all horse buttons when not picking
+            horseButton.style.display = (isPicking && (!localPicked || localDelayActive)) ? DisplayStyle.Flex : DisplayStyle.None;
+        }
+
+        if (nextRaceButton != null)
+        {
+            // show next race button when finished
+            // hide next race button when not finished
+            nextRaceButton.style.display = isFinished ? DisplayStyle.Flex : DisplayStyle.None;
+        }
+    }
+    
+    // NOTE: replaced with UpdateRaceActionButtons() above
+    /*
     void SetRaceButtons(bool state)
     {
         var display = state ? DisplayStyle.Flex : DisplayStyle.None;
         foreach (var horseButton in horseButtons) horseButton.style.display = display;
         if (nextRaceButton != null) nextRaceButton.style.display = display;
     }
+    */
 
     void OnDisable()
     {
@@ -157,6 +274,7 @@ public class RaceUIController : MonoBehaviour
     private void Update()
     {
         UpdateUI();
+        UpdateHorseEmojiState();
 
         // if the race game manager is not set or not connected, return
         if (raceGameManager == null || !IsConnected())
@@ -184,13 +302,13 @@ public class RaceUIController : MonoBehaviour
         {
             SetStartButtons(true);
             SetStatusText("Not connected");
-            SetRaceButtons(false); // hide race buttons when not connected
+            UpdateRaceActionButtons(); // hide race buttons when not connected
         }
         else
         {
             SetStartButtons(false);
             UpdateStatusLabels();
-            SetRaceButtons(true); // show race buttons when connected
+            UpdateRaceActionButtons(); // show race buttons when connected
         }
     }
 
