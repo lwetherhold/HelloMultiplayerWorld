@@ -26,7 +26,8 @@ public class RaceGameManager : NetworkBehaviour
    private NetworkObject spawnedRoundToken;
 
    // add a Server RPC so players can submit horse picks
-   [Rpc(SendTo.Server, RequireOwnership = false)]
+   [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+   //RequireOwnership = false is DEPRECATED
    public void SubmitPickServerRpc(int horseIndex, RpcParams rpcParams = default)
    {
         if (raceState.Value != (int)RaceState.WaitingForPicks) return;
@@ -55,7 +56,8 @@ public class RaceGameManager : NetworkBehaviour
         TryRunRaceIfReady();
    }
 
-   [Rpc(SendTo.Server, RequireOwnership = false)]
+   [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+   //RequireOwnership = false is DEPRECATED
    public void ResetRaceServerRpc()
    {
         if (!IsServer) return;
