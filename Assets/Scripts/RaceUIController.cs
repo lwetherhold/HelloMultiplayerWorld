@@ -6,6 +6,9 @@ public class RaceUIController : MonoBehaviour
 {
     // reference to the race game manager
     [SerializeField] private RaceGameManager raceGameManager;
+    // EXTRA CREDIT
+    // reference to the session connection manager
+    [SerializeField] private SessionConnectionManager sessionConnectionManager;
 
     // fields used for hide horse pick buttons + next race until connected
     private readonly System.Collections.Generic.List<Button> horseButtons = new System.Collections.Generic.List<Button>();
@@ -44,6 +47,48 @@ public class RaceUIController : MonoBehaviour
         // add elements (labels) for status and score to the root visual element
         root.Add(statusLabel);
         root.Add(scoreLabel);
+
+        // EXTRA CREDIT
+        // create session name input field and session buttons
+        var sessionNameField = new TextField("Join Code"); //"Session Name"
+        sessionNameField.value = ""; //"RaceRoom"
+
+        // EXTRA CREDIT
+        // create session buttons
+        var createSessionButton = CreateButton("CreateSessionButton", "Create Session");
+        var joinSessionButton = CreateButton("JoinSessionButton", "Join By Code"); //"Join Session"
+
+        // EXTRA CREDIT
+        // add session controls to the root visual element
+        root.Add(sessionNameField);
+        root.Add(createSessionButton);
+        root.Add(joinSessionButton);
+
+        // EXTRA CREDIT
+        // add event listeners to the session buttons
+        createSessionButton.clicked += async () =>
+        {
+            if (sessionConnectionManager == null) return;
+            await sessionConnectionManager.CreateSessionAndStartHost(sessionNameField.value);
+        };
+
+        // EXTRA CREDIT
+        // add event listeners to the join session button
+        joinSessionButton.clicked += async () =>
+        {
+            if (sessionConnectionManager == null) return;
+            await sessionConnectionManager.JoinSessionAndStartClient(sessionNameField.value);
+        };
+
+        // WRONG
+        // add event listeners to the session buttons
+        //createSessionButton.clicked += OnCreateSessionButtonClicked; // WRONG
+        //joinSessionButton.clicked += OnJoinSessionButtonClicked; // WRONG
+
+        // WRONG
+        // add session name input field and session buttons to the root visual element
+        //root.Add(sessionNameField); // WRONG
+        //root.Add(createSessionButton); // WRONG
 
         // create button for hosting a game
         hostButton = CreateButton("HostButton", "Host");

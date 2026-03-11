@@ -672,6 +672,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RaceGameManager
   ShowTopMostFoldoutHeaderGroup: 1
+  roundTokenPrefab: {fileID: 0}
   raceState:
     m_InternalValue: 0
   winnerHorse:
@@ -684,7 +685,6 @@ MonoBehaviour:
     m_InternalValue: 0
   player2Score:
     m_InternalValue: 0
-  roundTokenPrefab: {fileID: 0}
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0
@@ -815,6 +815,8 @@ GameObject:
   - component: {fileID: 1514709849}
   - component: {fileID: 1514709848}
   - component: {fileID: 1514709847}
+  - component: {fileID: 1514709850}
+  - component: {fileID: 1514709851}
   m_Layer: 0
   m_Name: RaceSystem
   m_TagString: Untagged
@@ -875,6 +877,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RaceUIController
   raceGameManager: {fileID: 1514709849}
+  sessionConnectionManager: {fileID: 1514709851}
 --- !u!114 &1514709848
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -911,6 +914,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RaceGameManager
   ShowTopMostFoldoutHeaderGroup: 1
+  roundTokenPrefab: {fileID: 3181911066773094365, guid: 9f395a5d91145be47b8b0d61e9a9bebe, type: 3}
   raceState:
     m_InternalValue: 0
   winnerHorse:
@@ -923,7 +927,30 @@ MonoBehaviour:
     m_InternalValue: 0
   player2Score:
     m_InternalValue: 0
-  roundTokenPrefab: {fileID: 3181911066773094365, guid: 9f395a5d91145be47b8b0d61e9a9bebe, type: 3}
+--- !u!114 &1514709850
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1514709844}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 325a1e6f4f54add47a7930e268a3ba5d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UGSBootstrap
+--- !u!114 &1514709851
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1514709844}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 869ce6b582363134eb79f014d3b76b05, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SessionConnectionManager
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
