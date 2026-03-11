@@ -92,6 +92,7 @@ public class RaceUIController : MonoBehaviour
         // add event listeners to the session buttons
         m_CreateSessionButton.clicked += async () =>
         {
+            SetStatusText("Creating session...");
             if (m_SessionConnectionManager == null) return;
             await m_SessionConnectionManager.StartHostSession(m_SessionName.value);
         };
@@ -100,6 +101,7 @@ public class RaceUIController : MonoBehaviour
         // add event listeners to the join session button
         m_JoinSessionButton.clicked += async () =>
         {
+            SetStatusText("Joining session...");
             if (m_SessionConnectionManager == null) return;
             await m_SessionConnectionManager.StartClientSession(m_SessionName.value);
         };
