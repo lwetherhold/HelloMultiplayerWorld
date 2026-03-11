@@ -877,7 +877,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RaceUIController
   raceGameManager: {fileID: 1514709849}
-  sessionConnectionManager: {fileID: 1514709851}
+  m_SessionConnectionManager: {fileID: 1514709851}
 --- !u!114 &1514709848
 MonoBehaviour:
   m_ObjectHideFlags: 0

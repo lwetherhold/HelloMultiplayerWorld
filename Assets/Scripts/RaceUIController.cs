@@ -8,11 +8,19 @@ public class RaceUIController : MonoBehaviour
     [SerializeField] private RaceGameManager raceGameManager;
     // EXTRA CREDIT
     // reference to the session connection manager
-    [SerializeField] private SessionConnectionManager sessionConnectionManager;
+    [SerializeField] private SessionConnectionManager m_SessionConnectionManager;
 
     // fields used for hide horse pick buttons + next race until connected
     private readonly System.Collections.Generic.List<Button> horseButtons = new System.Collections.Generic.List<Button>();
     private Button nextRaceButton;
+
+    // EXTRA CREDIT
+    // fields for session name, IP address, port, create session button, and join session button
+    private TextField m_SessionName;
+    private TextField m_IPAddress;
+    private IntegerField m_Port;
+    private Button m_CreateSessionButton;
+    private Button m_JoinSessionButton;
 
     // fields for UI Toolkit elements (labels, buttons, etc.)
     private VisualElement root; // root visual element
@@ -48,36 +56,52 @@ public class RaceUIController : MonoBehaviour
         root.Add(statusLabel);
         root.Add(scoreLabel);
 
+        /*
         // EXTRA CREDIT
         // create session name input field and session buttons
-        var sessionNameField = new TextField("Join Code"); //"Session Name"
+        var sessionNameField = new TextField("Join Code"); //"Session Name" // WRONG: USES VAR
         sessionNameField.value = ""; //"RaceRoom"
+        */
+
+        // EXTRA CREDIT
+        // create elements (labels) for session name, IP address, and port AS FIELDS
+
+        m_SessionName = new TextField("Session Name");
+        m_SessionName.value = "RaceRoom";
+
+        m_IPAddress = new TextField("IP Address");
+        m_IPAddress.value = "127.0.0.1";
+
+        m_Port = new IntegerField("Port");
+        m_Port.value = 7777;
 
         // EXTRA CREDIT
         // create session buttons
-        var createSessionButton = CreateButton("CreateSessionButton", "Create Session");
-        var joinSessionButton = CreateButton("JoinSessionButton", "Join By Code"); //"Join Session"
+        m_CreateSessionButton = CreateButton("CreateSessionButton", "Create Session");
+        m_JoinSessionButton = CreateButton("JoinSessionButton", "Join Session"); //"Join By Code"
 
         // EXTRA CREDIT
         // add session controls to the root visual element
-        root.Add(sessionNameField);
-        root.Add(createSessionButton);
-        root.Add(joinSessionButton);
+        root.Add(m_SessionName);
+        root.Add(m_CreateSessionButton);
+        root.Add(m_JoinSessionButton);
+        root.Add(m_IPAddress);
+        root.Add(m_Port);
 
         // EXTRA CREDIT
         // add event listeners to the session buttons
-        createSessionButton.clicked += async () =>
+        m_CreateSessionButton.clicked += async () =>
         {
-            if (sessionConnectionManager == null) return;
-            await sessionConnectionManager.CreateSessionAndStartHost(sessionNameField.value);
+            if (m_SessionConnectionManager == null) return;
+            await m_SessionConnectionManager.StartHostSession(m_SessionName.value);
         };
 
         // EXTRA CREDIT
         // add event listeners to the join session button
-        joinSessionButton.clicked += async () =>
+        m_JoinSessionButton.clicked += async () =>
         {
-            if (sessionConnectionManager == null) return;
-            await sessionConnectionManager.JoinSessionAndStartClient(sessionNameField.value);
+            if (m_SessionConnectionManager == null) return;
+            await m_SessionConnectionManager.StartClientSession(m_SessionName.value);
         };
 
         // WRONG
@@ -87,8 +111,8 @@ public class RaceUIController : MonoBehaviour
 
         // WRONG
         // add session name input field and session buttons to the root visual element
-        //root.Add(sessionNameField); // WRONG
-        //root.Add(createSessionButton); // WRONG
+        //root.Add(sessionNameField); // WRONG - DUPLICATE
+        //root.Add(createSessionButton); // WRONG - DUPLICATE
 
         // create button for hosting a game
         hostButton = CreateButton("HostButton", "Host");
@@ -96,10 +120,34 @@ public class RaceUIController : MonoBehaviour
         clientButton = CreateButton("ClientButton", "Client");
         // create button for starting a server
         serverButton = CreateButton("ServerButton", "Server");
+        // EXTRA CREDIT
+        // keep direct connect buttons compact so everything fits // NO LONGER NEEDED, REDUCED SIZE UNIVERSALLY IN CREATEBUTTON()
+        //hostButton.style.width = 180;
+        //clientButton.style.width = 180;
+        //serverButton.style.width = 180;
+
+        // EXTRA CREDIT
+        // add event listeners to the host button
+        hostButton.clicked += () =>
+        {
+            if (m_SessionConnectionManager == null) return;
+            m_SessionConnectionManager.StartHostIP(m_IPAddress.value, (ushort)m_Port.value);
+        };
+
+        // EXTRA CREDIT
+        // add event listerns to the client button
+        clientButton.clicked += () =>
+        {
+            if (m_SessionConnectionManager == null) return;
+            m_SessionConnectionManager.StartClientIP(m_IPAddress.value, (ushort)m_Port.value);
+        };
 
         // add event listeners to the buttons
-        hostButton.clicked += OnHostButtonClicked; // on host button clicked, start hosting
-        clientButton.clicked += OnClientButtonClicked; // on client button clicked, start client
+        // DEPRECATED DUE TO EXTRA CREDIT (double-start bug can occur with two handlers)
+        //hostButton.clicked += OnHostButtonClicked; // on host button clicked, start hosting
+        // DEPRECATED DUE TO EXTRA CREDIT (double-start bug can occur with two handlers)
+        //clientButton.clicked += OnClientButtonClicked; // on client button clicked, start client
+        // KEEP SERVER ONLY MODE FOR NOW?
         serverButton.clicked += OnServerButtonClicked; // on server button clicked, start server
 
         // add buttons for hosting, client, and server to the root visual element
@@ -342,16 +390,20 @@ public class RaceUIController : MonoBehaviour
     void OnDisable()
     {
         // remove event listeners from the buttons
-        if (hostButton != null) hostButton.clicked -= OnHostButtonClicked; // on host button clicked, stop hosting
-        if (clientButton != null) clientButton.clicked -= OnClientButtonClicked; // on client button clicked, stop client
+        // DEPRECATED DUE TO EXTRA CREDIT (remove matching unsubscribe handlers)
+        //if (hostButton != null) hostButton.clicked -= OnHostButtonClicked; // on host button clicked, stop hosting
+        // DEPRECATED DUE TO EXTRA CREDIT (remove matching unsubscribe handlers)
+        //if (clientButton != null) clientButton.clicked -= OnClientButtonClicked; // on client button clicked, stop client
         if (serverButton != null) serverButton.clicked -= OnServerButtonClicked; // on server button clicked, stop server
     }
 
     // called when the host button is clicked
-    void OnHostButtonClicked() => NetworkManager.Singleton.StartHost();
+    // DEPRECATED DUE TO EXTRA CREDIT (double-start bug can occur with two handlers)
+    //void OnHostButtonClicked() => NetworkManager.Singleton.StartHost();
 
     // called when the client button is clicked
-    void OnClientButtonClicked() => NetworkManager.Singleton.StartClient();
+    // DEPRECATED DUE TO EXTRA CREDIT (double-start bug can occur with two handlers)
+    //void OnClientButtonClicked() => NetworkManager.Singleton.StartClient();
 
     // called when the server button is clicked
     void OnServerButtonClicked() => NetworkManager.Singleton.StartServer();
@@ -393,6 +445,8 @@ public class RaceUIController : MonoBehaviour
         {
             // show the start buttons
             SetStartButtons(true);
+            // EXTRA CREDIT
+            SetSessionControls(true);
             SetStatusText("Not connected");
             UpdateRaceActionButtons(); // hide race buttons when not connected
         }
@@ -400,6 +454,8 @@ public class RaceUIController : MonoBehaviour
         {
             // hide the start buttons
             SetStartButtons(false);
+            // EXTRA CREDIT
+            SetSessionControls(false);
             UpdateStatusLabels(); // update the status labels
             UpdateRaceActionButtons(); // show race buttons when connected
         }
@@ -423,6 +479,21 @@ public class RaceUIController : MonoBehaviour
         if (hostButton != null) hostButton.style.display = display;
         if (clientButton != null) clientButton.style.display = display;
         if (serverButton != null) serverButton.style.display = display;
+    }
+
+    // EXTRA CREDIT
+    // helper method to set the state of the session controls
+    void SetSessionControls(bool state)
+    {
+        // get the display state of the session controls
+        var display = state ? DisplayStyle.Flex : DisplayStyle.None;
+
+        // set the display state of the session controls if they are set
+        if (m_SessionName != null) m_SessionName.style.display = display;
+        if (m_CreateSessionButton != null) m_CreateSessionButton.style.display = display;
+        if (m_JoinSessionButton != null) m_JoinSessionButton.style.display = display;
+        if (m_IPAddress != null) m_IPAddress.style.display = display;
+        if (m_Port != null) m_Port.style.display = display;
     }
 
     // set the text of the status label
@@ -453,7 +524,9 @@ public class RaceUIController : MonoBehaviour
         // set the attributes of the button
         button.name = name;
         button.text = text;
-        button.style.width = 240;
+        button.style.width = 240; //150 // EXTRA CREDIT
+        button.style.height = 33; //44 // EXTRA CREDIT
+        button.style.fontSize = 12; //22 // EXTRA CREDIT
         button.style.backgroundColor = Color.white;
         button.style.color = Color.black;
         button.style.unityFontStyleAndWeight = FontStyle.Bold;
