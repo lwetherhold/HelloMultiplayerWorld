@@ -59,8 +59,8 @@ public class RaceUIController : MonoBehaviour
         /*
         // EXTRA CREDIT
         // create session name input field and session buttons
-        var sessionNameField = new TextField("Join Code"); //"Session Name" // WRONG: USES VAR
-        sessionNameField.value = ""; //"RaceRoom"
+        var sessionNameField = new TextField("Join Code"); //"Session Name" // WRONG: USES VAR, USING SESSION NAME FIELD BELOW
+        sessionNameField.value = ""; //"RaceRoom" // WRONG: USES VAR, USING SESSION NAME FIELD BELOW
         */
 
         // EXTRA CREDIT
@@ -92,18 +92,22 @@ public class RaceUIController : MonoBehaviour
         // add event listeners to the session buttons
         m_CreateSessionButton.clicked += async () =>
         {
-            SetStatusText("Creating session...");
             if (m_SessionConnectionManager == null) return;
-            await m_SessionConnectionManager.StartHostSession(m_SessionName.value);
+            bool isOk = await m_SessionConnectionManager.StartHostSession(m_SessionName.value);
+            //SetStatusText("Creating session..."); // ADD SUCCESS/FAIL STATUS HINT BELOW
+            //await m_SessionConnectionManager.StartHostSession(m_SessionName.value); // ADD SUCCESS/FAIL STATUS HINT BELOW
+            SetStatusText(isOk ? "Session host started" : "Create session failed");
         };
 
         // EXTRA CREDIT
         // add event listeners to the join session button
         m_JoinSessionButton.clicked += async () =>
         {
-            SetStatusText("Joining session...");
             if (m_SessionConnectionManager == null) return;
-            await m_SessionConnectionManager.StartClientSession(m_SessionName.value);
+            bool isOk = await m_SessionConnectionManager.StartClientSession(m_SessionName.value);
+            //SetStatusText("Joining session..."); // ADD SUCCESS/FAIL STATUS HINT BELOW
+            //await m_SessionConnectionManager.StartClientSession(m_SessionName.value); // ADD SUCCESS/FAIL STATUS HINT BELOW
+            SetStatusText(isOk ? "Session client joined" : "Join session failed");
         };
 
         // WRONG

@@ -10,12 +10,12 @@ public class SessionConnectionManager : MonoBehaviour
     public async Task<bool> StartHostSession(string sessionName, int maxPlayers = 2, bool isPrivate = false)
     {
         var options = new SessionOptions { MaxPlayers = maxPlayers, IsPrivate = isPrivate, Name = sessionName }
-            .WithRelayNetwork();
-        //await MultiplayerService.Instance.CreateSessionAsync(sessionName, options);
+            .WithRelayNetwork(); // USE NO-IP SESSIONS W/ RELAY, DO NOT USE MANUAL IP
+        //await MultiplayerService.Instance.CreateSessionAsync(sessionName, options); // NEED TO ADD DEBUG LOGGING
         //var session = await MultiplayerService.Instance.CreateSessionAsync(sessionName, options); // CAUSED ERROR
         var session = await MultiplayerService.Instance.CreateSessionAsync(options);
         Debug.Log("Session Join Code: " + session.Code);
-        //return NetworkManager.Singleton.StartHost(); WRONG
+        //return NetworkManager.Singleton.StartHost(); STOP MANUALLY STARTING NGO (let sessions/relay network handler do it)
         return true;
     }
 
@@ -45,7 +45,7 @@ public class SessionConnectionManager : MonoBehaviour
         }
 
         await MultiplayerService.Instance.JoinSessionByIdAsync(target.Id);
-        //return NetworkManager.Singleton.StartClient(); // WRONG
+        //return NetworkManager.Singleton.StartClient(); // STOP MANUALLY STARTING NGO (let sessions/relay network handler do it)
         return true;
     }
 
